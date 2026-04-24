@@ -64,7 +64,7 @@ function estimateRealLevel(): number {
   });
   const value = key ? lastByNode[key]?.value : undefined;
   if (typeof value === "number") {
-    return THREE.MathUtils.clamp(value, RELAVE_MIN, 785.5);
+    return THREE.MathUtils.clamp(value, RELAVE_MIN, RELAVE_SIM_MAX);
   }
   return 780;
 }

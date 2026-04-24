@@ -104,6 +104,9 @@ export default function DigitalTwinPage() {
     if (metrics.freeboard < 0) {
       events.push("Desborde activo: relave sobrepaso la corona del dique.");
     }
+    if (metrics.freeboard <= -1.4 && metrics.freeboard >= -1.55) {
+      events.push("Escenario ~1,5m de rebose: cota del espejo cercana a 787,5 msnm (tope de simulacion).");
+    }
     if (metrics.safetyFactor <= 1) {
       events.push("FS critico: falla inminente del talud.");
     } else if (metrics.safetyFactor <= 1.2) {

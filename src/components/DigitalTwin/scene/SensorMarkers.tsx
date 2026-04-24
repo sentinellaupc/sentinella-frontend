@@ -32,6 +32,17 @@ type PositionedNode = {
   z: number;
 };
 
+function resolveReading(nodeId: string, externalId?: string) {
+  const readings = useSensorStore.getState().lastByNode;
+  if (readings[nodeId]) {
+    return readings[nodeId];
+  }
+  if (externalId && readings[externalId]) {
+    return readings[externalId];
+  }
+  return undefined;
+}
+
 function positionNode(node: TwinNode, index: number, total: number): PositionedNode {
   const byExternal = SENSOR_POSITIONS.find((p) => p.nodeId === node.externalId);
   if (byExternal) {
@@ -68,7 +79,7 @@ export function createSensorMarkerSystem(scene: THREE.Scene, nodes: TwinNode[]):
     glow.position.set(item.x, item.y, item.z);
     glow.userData.nodeId = item.node.id;
 
-    mesh.userData = { nodeId: item.node.id, name: item.node.name };
+    mesh.userData = { nodeId: item.node.id, externalId: item.node.externalId, name: item.node.name };
     meshes.push(mesh);
     glows.push(glow);
     scene.add(mesh);
@@ -78,11 +89,10 @@ export function createSensorMarkerSystem(scene: THREE.Scene, nodes: TwinNode[]):
   return {
     meshes,
     update: (time) => {
-      const readings = useSensorStore.getState().lastByNode;
       for (let i = 0; i < meshes.length; i += 1) {
         const mesh = meshes[i];
         const glow = glows[i];
-        const reading = readings[String(mesh.userData.nodeId)];
+        const reading = resolveReading(String(mesh.userData.nodeId), String(mesh.userData.externalId ?? ""));
         const status = String(reading?.status ?? "OK").toUpperCase();
         const mat = mesh.material as THREE.MeshStandardMaterial;
         const pulse = 1 + Math.sin(time * 3.2 + i * 0.4) * 0.24;
@@ -117,7 +127,8 @@ export function createSensorMarkerSystem(scene: THREE.Scene, nodes: TwinNode[]):
         return null;
       }
       const nodeId = String(hit.object.userData.nodeId);
-      const reading = useSensorStore.getState().lastByNode[nodeId];
+      const externalId = String(hit.object.userData.externalId ?? "");
+      const reading = resolveReading(nodeId, externalId);
       return {
         nodeId,
         name: String(hit.object.userData.name ?? nodeId),

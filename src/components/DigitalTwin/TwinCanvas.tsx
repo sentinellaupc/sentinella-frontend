@@ -38,6 +38,10 @@ export default function TwinCanvas({ nodes, onSelectSensor, onMetricsChange }: P
     const height = mount.clientHeight || 520;
 
     const scene = new THREE.Scene();
+    // Fondo tipo cielo diurno árido (referencia fotos).
+    scene.background = new THREE.Color(0xbdd6e8);
+    // Niebla suave: far mayor que near para no velar el fondo.
+    scene.fog = new THREE.Fog(0xcce0ef, 720, 2800);
     const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1400);
     camera.position.set(170, 88, 178);
 
@@ -55,9 +59,11 @@ export default function TwinCanvas({ nodes, onSelectSensor, onMetricsChange }: P
     controls.maxDistance = 520;
     controls.minDistance = 55;
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.46));
-    const dir = new THREE.DirectionalLight(0xfff5e4, 1.1);
-    dir.position.set(60, 130, 45);
+    scene.add(new THREE.AmbientLight(0xfff0dc, 0.72));
+    const hemi = new THREE.HemisphereLight(0xcfe0ef, 0xb89163, 0.55);
+    scene.add(hemi);
+    const dir = new THREE.DirectionalLight(0xfff2d6, 1.35);
+    dir.position.set(85, 160, 70);
     dir.castShadow = true;
     dir.shadow.mapSize.set(1024, 1024);
     dir.shadow.camera.near = 0.1;
@@ -134,6 +140,7 @@ export default function TwinCanvas({ nodes, onSelectSensor, onMetricsChange }: P
         showSaturationMap: sim.showSaturationMap,
         showFlowVector: sim.showFlowVector,
         time: t,
+        delta,
       });
       weatherSystem.update(
         {
